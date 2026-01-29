@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { createPattern } from "./pattern";
-import { extractXMinMaxByText } from "./util";
+import { extractXMinMaxByText, layoutInLanes } from "./util";
 
 /**
  * Create an SVG circle using D3.
@@ -37,7 +37,7 @@ export function createCircle(diameter, color, target = "body") {
  * @param {object} wirings - array of object including terminal name, color and text
  * @returns {SVGElement} The created SVG element.
  */
-export async function createWiringDiagram(svgfile,terminals,wirings){
+export async function createWiringDiagram(svgfile,terminals,wirings,config){
   //La taille du SVG doit être équivalente au svg importé.
   // On utilise donc les valeurs du viewBox du svg importé
   // Par défaut le svg a la dimension 300x150px si on ne précise rien
@@ -93,19 +93,24 @@ export async function createWiringDiagram(svgfile,terminals,wirings){
     .attr("stroke-linecap", "round");
 
   let ranges = extractXMinMaxByText(wirings,terminals);
-  Object.entries(ranges).forEach(([text, { xmin, xmax, y }]) => {
-    const cx = (xmin + xmax) / 2;
+  console.log(ranges)
+  let boxes = layoutInLanes(Object.entries(ranges).map(([text, { xmin, xmax, y, delta }]) => ({ x: (xmin + xmax) / 2, width: 150, height: 20, text, delta })), { padY: 5, top: 0, leftMargin: 0 });
+  console.log(boxes)
+  //Object.entries(ranges).forEach(([text, { xmin, xmax, y }]) => {
+  boxes.nodes.forEach(box => {
+    //const cx = (xmin + xmax) / 2;
+    const cx = (box.left + box.right) / 2;
 
     // groupe pour rect + text
     const gr = g.append("g")
-      .attr("transform", `translate(${cx}, ${y+lineLen+20})`);
+      .attr("transform", `translate(${box.left}, ${box.delta+(boxes.laneTops[box.lane])})`);
 
     // rectangle autour du texte
     gr.append("rect")
-      .attr("x", -(xmax-xmin+20*2)/2)//,xmin-20)
-      .attr("y", -10)//,y+lineLen)
-      .attr("width",xmax-xmin+20*2)
-      .attr("height", 20)
+      .attr("x", 0)//-(xmax-xmin+20*2)/2)//,xmin-20)
+      .attr("y", 0)//-10)//,y+lineLen)
+      .attr("width",box.width)
+      .attr("height", box.height)
       .attr("rx", 4)
       .attr("ry", 4)
       .attr("fill", "#eee")
@@ -114,9 +119,14 @@ export async function createWiringDiagram(svgfile,terminals,wirings){
 
         // texte (centré)
     const label = gr.append("text")
+      .attr("x", box.width / 2)
+      .attr("y", box.height / 2)
+      /*.attr("font-family", "Arial, sans-serif")
+      .attr("font-size", 12)
+      .attr("fill", "#000")*/
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
-      .text(text);
+      .text(box.text);
 });
 
   svg.call(

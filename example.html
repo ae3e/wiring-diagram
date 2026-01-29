@@ -23,17 +23,17 @@
       import { createWiringDiagram } from "./dist/wiringdiagram.esm.js";
 
       let terminals = {
-        "H1": {x: 90, y: 110},
+        "H1": {x: 90, y: 110, delta:160},
         "L1": {x: 170, y: 110},
         "G1": {x: 250, y: 110},
-        "H2": {x: 330, y: 110},
-        "L2": {x: 410, y: 110},
-        "RS232": {x: 500, y: 110},
+        "H2": {x: 330, y: 110, delta:160},
+        "L2": {x: 410, y: 110, delta:160},
+        "RS232": {x: 500, y: 110, delta:160},
       }
 
       let wirings = [
         { t: "H1", color: "blue", text:"sensor1" },
-        { t: "RS232", color: "red", text:"sensor3" },
+        { t: "RS232", color: "red", text:"EST6000_TEM_01" },
         { t: "H2", color: "red-black", text:"sensor2" },
         { t: "L2", color: "#F0F", text:"sensor2" },
         { t: "L1", color: "yellow-black", text:"sensor1" },

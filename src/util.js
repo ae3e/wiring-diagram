@@ -1,3 +1,5 @@
+import * as d3 from "d3";
+
 export function extractXMinMaxByText(wirings, terminals) {
   const result = {};
 
@@ -11,7 +13,7 @@ export function extractXMinMaxByText(wirings, terminals) {
     if (y == null) return;
 
     if (!result[text]) {
-      result[text] = { xmin: x, xmax: x, y:y };
+      result[text] = { xmin: x, xmax: x, y:y, delta:terminals[t]?.delta || 0 };
     } else {
       result[text].xmin = Math.min(result[text].xmin, x);
       result[text].xmax = Math.max(result[text].xmax, x);
@@ -32,7 +34,7 @@ function overlaps1D(l1, r1, l2, r2, padX = 0) {
 
 /**
  * Place les boxes en "lanes" (lignes) pour éviter les chevauchements horizontaux.
- * Entrée: items [{x, width, height}]
+ * Entrée: items [{x, width, height, text}]
  * Sortie: items enrichis {left, right, lane, y, ...} + meta lanes
  */
 export function layoutInLanes(items, cfg) {
@@ -45,9 +47,9 @@ export function layoutInLanes(items, cfg) {
 
     // Normalise: calcule left/right à partir de x milieu
     const nodes = items.map(d => {
-    const left = (d.x - d.width / 2);
-    const right = (d.x + d.width / 2);
-    return { ...d, left, right };
+        const left = (d.x - d.width / 2);
+        const right = (d.x + d.width / 2);
+        return { ...d, left, right };
     });
 
     // Tri par bord gauche (greedy classique)
