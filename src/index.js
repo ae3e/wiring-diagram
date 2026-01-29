@@ -66,6 +66,13 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
     .attr("href", svgfile);
 
 
+  let ranges = extractXMinMaxByText(wirings,terminals);
+  console.log(ranges)
+  let defaultWidth = 150;
+  let boxes = layoutInLanes(Object.entries(ranges).map(([text, { xmin, xmax, y, delta }]) => ({ x: (xmin + xmax) / 2, width: xmax-xmin>defaultWidth?xmax-xmin+20:defaultWidth, height: 20, text, delta })), { padY: 5, top: 0, leftMargin: 0 });
+  console.log(boxes)
+
+
   const g2 =g.append("g").attr("id", "terminal-lines");
 
   // d3.line() = segment défini par 2 points
@@ -81,8 +88,9 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
     .attr("class", "terminal-line")
     .attr("d", (d) =>
       line([
-        [terminals[d.t].x, terminals[d.t].y - lineLen / 2 + 2],
-        [terminals[d.t].x, terminals[d.t].y + lineLen / 2 + 30]
+        [terminals[d.t].x, terminals[d.t].y],//terminals[d.t].y + lineLen / 2 + 30],
+        [terminals[d.t].x, boxes.nodes.find(item => item.text === d.text).delta+boxes.laneTops[boxes.nodes.find(item => item.text === d.text).lane]],
+        
       ])
     )
     .attr("fill", "none")
@@ -92,10 +100,7 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
     .attr("stroke-width", 3)
     .attr("stroke-linecap", "round");
 
-  let ranges = extractXMinMaxByText(wirings,terminals);
-  console.log(ranges)
-  let boxes = layoutInLanes(Object.entries(ranges).map(([text, { xmin, xmax, y, delta }]) => ({ x: (xmin + xmax) / 2, width: 150, height: 20, text, delta })), { padY: 5, top: 0, leftMargin: 0 });
-  console.log(boxes)
+  
   //Object.entries(ranges).forEach(([text, { xmin, xmax, y }]) => {
   boxes.nodes.forEach(box => {
     //const cx = (xmin + xmax) / 2;
