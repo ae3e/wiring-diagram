@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ELK Rectangle Packing + D3</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    button { padding: 8px 12px; cursor: pointer; }
+    .hint { color: #444; font-size: 14px; }
+    #stage { width: 100vw; height: calc(100vh - 58px); background: #fafafa; }
+    .node rect { fill: white; stroke: #222; stroke-width: 1.2px; }
+    .node text { font-size: 12px; dominant-baseline: middle; user-select: none; }
+    .bin { fill: none; stroke: #888; stroke-dasharray: 6 4; stroke-width: 1.2px; }
+    .error { color: #b00020; font-weight: 600; }
+    code { background: #f2f2f2; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <button id="btn-pack">Repack</button>
+    <span class="hint">
+      Algo: <code>org.eclipse.elk.rectpacking</code> (Rectangle Packing) + rendu D3
+    </span>
+    <span id="status" class="hint"></span>
+  </header>
+
+  <svg id="stage"></svg>
+
+  <!-- D3 -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <!-- ELK.js -->
+  <script src="https://cdn.jsdelivr.net/npm/elkjs@0.8.2/lib/elk.bundled.js"></script>
+
+  <script>
+    // ---------- Setup SVG ----------
+    const svg = d3.select("#stage");
+    const g = svg.append("g").attr("class", "root");
+
+    function resize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight - 58;
+      svg.attr("width", w).attr("height", h);
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    // Zoom/pan (optionnel mais pratique)
+    svg.call(
+      d3.zoom()
+        .scaleExtent([0.2, 6])
+        .on("zoom", (event) => g.attr("transform", event.transform))
+    );
+
+    const statusEl = document.getElementById("status");
+    function setStatus(msg, isError=false) {
+      statusEl.textContent = msg;
+      statusEl.className = isError ? "hint error" : "hint";
+    }
+
+    // ---------- Data: ~10 rectangles ----------
+    // Astuce: donne des tailles variées pour voir l'effet du packing
+    function makeNodes() {
+      const sizes = [
+        [120, 70],
+        [90, 110],
+        [140, 60],
+        [80, 80],
+        [160, 90],
+        [70, 140],
+        [110, 95],
+        [130, 120],
+        [95, 65],
+        [150, 75],
+      ];
+
+      return sizes.map((s, i) => ({
+        id: `n${i+1}`,
+        width: s[0],
+        height: s[1],
+      }));
+    }
+
+    // ---------- Build an ELK graph for rectangle packing ----------
+    // Rectangle packing se fait via "children" (pas des edges).
+    // Le "parent" sert de conteneur (bin). Certaines configs utilisent
+    // un nœud parent avec width/height fixes, d'autres laissent ELK
+    // calculer la bounding box.
+    function buildElkGraph(nodes, options = {}) {
+      const graph = {
+        id: "root",
+        width:2000,
+        layoutOptions: {
+          // IMPORTANT: c'est l'algo rectangle packing
+          "elk.algorithm": "org.eclipse.elk.rectpacking",
+
+          // Quelques options courantes. Selon versions ELK, certaines peuvent être ignorées.
+          // Direction / tri / spacing :
+          "elk.spacing.nodeNode": String(options.spacing ?? 10),
+
+          // Si tu veux éviter les rotations (si supporté):
+          // "elk.rectpacking.rotate": "false",
+
+          // Stratégie / heuristique (si supporté):
+          // "elk.rectpacking.strategy": "BEST_FIT",
+
+          // Padding du conteneur (si supporté):
+          // "elk.padding": "[top=10,left=10,bottom=10,right=10]"
+        },
+        children: nodes.map(n => ({
+          id: n.id,
+          width: n.width,
+          height: n.height,
+          // on peut aussi mettre des labels, mais ici on gère côté D3
+        })),
+      };
+
+      // Optionnel: si tu veux un "bin" fixe, tu peux définir width/height du root.
+      // graph.width = 700; graph.height = 450;
+
+      return graph;
+    }
+
+    // ---------- Run ELK layout ----------
+    const elk = new ELK();
+
+    async function packAndRender() {
+      setStatus("Calcul du packing…");
+
+      const nodes = makeNodes();
+      const elkGraph = buildElkGraph(nodes, { spacing: 12 });
+
+      let laidOut;
+      try {
+        laidOut = await elk.layout(elkGraph);
+      } catch (err) {
+        console.error(err);
+        setStatus(
+          "Erreur ELK. Ton build elkjs ne supporte peut-être pas org.eclipse.elk.rectpacking (ou options).",
+          true
+        );
+        // On fait un fallback: affichage en grille simple.
+        return renderFallback(nodes);
+      }
+
+      setStatus("OK. Zoom/pan dans le SVG, clique 'Repack' pour regénérer.");
+
+      // laidOut.children contient x/y/width/height pour chaque rectangle
+      renderPacked(laidOut);
+    }
+
+    // ---------- Render with D3 ----------
+    function renderPacked(laidOut) {
+      const children = laidOut.children || [];
+
+      // Calcul d'une bbox (utile pour dessiner le "bin" autour)
+      const minX = d3.min(children, d => d.x) ?? 0;
+      const minY = d3.min(children, d => d.y) ?? 0;
+      const maxX = d3.max(children, d => (d.x ?? 0) + (d.width ?? 0)) ?? 0;
+      const maxY = d3.max(children, d => (d.y ?? 0) + (d.height ?? 0)) ?? 0;
+
+      const pad = 20;
+      const bin = {
+        x: minX - pad,
+        y: minY - pad,
+        width: (maxX - minX) + pad * 2,
+        height: (maxY - minY) + pad * 2,
+      };
+
+      // Clear
+      g.selectAll("*").remove();
+
+      // Draw bin
+      g.append("rect")
+        .attr("class", "bin")
+        .attr("x", bin.x)
+        .attr("y", bin.y)
+        .attr("width", bin.width)
+        .attr("height", bin.height);
+
+      // Join
+      const sel = g.selectAll(".node")
+        .data(children, d => d.id);
+
+      const enter = sel.enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+
+      enter.append("rect")
+        .attr("rx", 8)
+        .attr("ry", 8)
+        .attr("width", d => d.width)
+        .attr("height", d => d.height);
+
+      enter.append("text")
+        .attr("x", 10)
+        .attr("y", d => d.height / 2)
+        .text(d => `${d.id} (${d.width}×${d.height})`);
+
+      // Transition update (si tu veux, ici simple)
+      sel.merge(enter)
+        .transition()
+        .duration(450)
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+
+      sel.exit().remove();
+
+      // Recentre la vue (petit "fit")
+      fitTo(bin);
+    }
+
+    function fitTo(box) {
+      const w = +svg.attr("width");
+      const h = +svg.attr("height");
+
+      const scale = Math.min(
+        w / (box.width + 40),
+        h / (box.height + 40)
+      );
+
+      const tx = (w / 2) - (box.x + box.width / 2) * scale;
+      const ty = (h / 2) - (box.y + box.height / 2) * scale;
+
+      svg.transition()
+        .duration(500)
+        .call(
+          d3.zoom().transform,
+          d3.zoomIdentity.translate(tx, ty).scale(scale)
+        );
+    }
+
+    // ---------- Fallback render if algo unavailable ----------
+    function renderFallback(nodes) {
+      g.selectAll("*").remove();
+      setStatus("Fallback: affichage en grille (packing non disponible dans ce build elkjs).", true);
+
+      const cols = 5;
+      const gap = 14;
+      let x = 20, y = 20;
+      let rowH = 0;
+
+      const placed = nodes.map((n, i) => {
+        if (i % cols === 0 && i !== 0) {
+          x = 20;
+          y += rowH + gap;
+          rowH = 0;
+        }
+        const out = { id: n.id, width: n.width, height: n.height, x, y };
+        x += n.width + gap;
+        rowH = Math.max(rowH, n.height);
+        return out;
+      });
+
+      const maxX = d3.max(placed, d => d.x + d.width) ?? 0;
+      const maxY = d3.max(placed, d => d.y + d.height) ?? 0;
+
+      g.append("rect")
+        .attr("class", "bin")
+        .attr("x", 10)
+        .attr("y", 10)
+        .attr("width", maxX - 10 + 20)
+        .attr("height", maxY - 10 + 20);
+
+      const nodeG = g.selectAll(".node")
+        .data(placed, d => d.id)
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+
+      nodeG.append("rect")
+        .attr("rx", 8)
+        .attr("ry", 8)
+        .attr("width", d => d.width)
+        .attr("height", d => d.height);
+
+      nodeG.append("text")
+        .attr("x", 10)
+        .attr("y", d => d.height / 2)
+        .text(d => `${d.id} (${d.width}×${d.height})`);
+
+      fitTo({ x: 10, y: 10, width: maxX, height: maxY });
+    }
+
+    // ---------- Hook ----------
+    document.getElementById("btn-pack").addEventListener("click", packAndRender);
+
+    // First render
+    packAndRender();
+  </script>
+</body>
+</html>

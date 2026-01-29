@@ -1,0 +1,25 @@
+{
+  "name": "wiringdiagram",
+  "version": "0.1.0",
+  "description": "A small ES6 module library for creating SVG circles with D3.",
+  "type": "module",
+  "main": "dist/wiringdiagram.cjs",
+  "module": "dist/wiringdiagram.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/wiringdiagram.esm.js",
+      "require": "./dist/wiringdiagram.cjs"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {
+    "d3": "^7.9.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "rollup": "^4.9.6"
+  }
+}

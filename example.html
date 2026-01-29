@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WiringDiagram Example</title>
+    <style>
+      body {
+        font-family: "Trebuchet MS", Arial, sans-serif;
+        margin: 24px;
+      }
+      #stage, #stage2 {
+        display: inline-block;
+        border: 1px dashed #888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WiringDiagram</h1>
+    <p>Tests with sensors connected on a datalogger</p>
+    <div id="stage2" style="width:600px"></div>
+    <script type="module">
+      import { createWiringDiagram } from "./dist/wiringdiagram.esm.js";
+
+      let terminals = {
+        "H1": {x: 90, y: 110},
+        "L1": {x: 170, y: 110},
+        "G1": {x: 250, y: 110},
+        "H2": {x: 330, y: 110},
+        "L2": {x: 410, y: 110},
+        "RS232": {x: 500, y: 110},
+      }
+
+      let wirings = [
+        { t: "H1", color: "blue", text:"sensor1" },
+        { t: "RS232", color: "red", text:"sensor3" },
+        { t: "H2", color: "red-black", text:"sensor2" },
+        { t: "L2", color: "#F0F", text:"sensor2" },
+        { t: "L1", color: "yellow-black", text:"sensor1" },
+        { t: "G1", color: "red-black", text:"sensor1" },
+      ]
+      document.querySelector("#stage2").append(await createWiringDiagram("not used",terminals,wirings))
+    </script>
+  </body>
+</html>
