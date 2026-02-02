@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CR1000</title>
+  <style>
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    #wrap { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+    header { padding: 10px 12px; border-bottom: 1px solid #e6e6e6; }
+    header code { background: #f6f6f6; padding: 2px 6px; border-radius: 6px; }
+    svg { width: 100%; height: 100%; display: block; }
+    .node rect { fill: white; stroke: #111; stroke-width: 1.2px; rx: 10; ry: 10; }
+    .node.sensor rect { stroke-dasharray: 5 4; }
+    .node text { font-size: 12.5px; dominant-baseline: middle; text-anchor: middle; fill: #111; }
+    .edge path { fill: none; stroke: #333; stroke-width: 1.4px; }
+    .edge text { font-size: 11px; fill: #444; }
+    .hint { color: #666; font-size: 13px; }
+  </style>
+  <script type="importmap">
+      {
+        "imports": {
+          "d3": "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+        }
+      }
+    </script>
+</head>
+<body>
+  <div id="wrap">
+    <header>
+      <div><b>Datalogger</b> CR1000 terminals: <code>H1, L1, M1, H2, L2, M2, ..., RS232</code> + weather sensors : <code>EST6000_TEM_01, EST6000_HUM_01, ...</code></div>
+      <div class="hint">Drag background to pan. Mousewheel to zoom.</div>
+    </header>
+    <svg id="svg"></svg>
+  </div>
+
+    <script type="module">
+      import { createWiringDiagram } from "./src/index.js";
+
+      let terminals = {
+        "H1": {x: 164, y: 300, delta:70},
+        "L1": {x: 180, y: 300},
+        "G1": {x: 196, y: 300},
+        "H2": {x: 216, y: 300, delta:70},
+        "L2": {x: 232, y: 300, delta:70},
+        "M2": {x: 248, y: 300, delta:70},
+        "H3": {x: 268, y: 300, delta:70},
+        "L3": {x: 284, y: 300, delta:70},
+        "M3": {x: 300, y: 300, delta:70},
+        "H4": {x: 320, y: 300, delta:70},
+        "L4": {x: 336, y: 300, delta:70},
+        "M4": {x: 352, y: 300, delta:70},
+        "H5": {x: 372, y: 300, delta:70},
+        "L5": {x: 388, y: 300, delta:70},
+        "M5": {x: 404, y: 300, delta:70},
+        "RS232": {x: 1530, y: 390, delta:500},
+      };
+
+      let wirings = [
+        { t: "H1", color: "blue", text:"EST6000_TEM_01" },        
+        { t: "L1", color: "yellow-black", text:"EST6000_TEM_01" },
+        { t: "G1", color: "red-black", text:"EST6000_TEM_01" },
+        { t: "H2", color: "red-black", text:"EST6000_PRA_01" },
+        { t: "L2", color: "#F0F", text:"EST6000_PRA_01" },
+        { t: "M2", color: "green", text:"EST6000_PRA_01" },
+        { t: "H3", color: "red-black", text:"EST6000_HUM_01" },
+        { t: "L3", color: "#F0F", text:"EST6000_HUM_01" },
+        { t: "M3", color: "green", text:"EST6000_HUM_01" },
+        { t: "H4", color: "red-black", text:"EST6000_VVE_01" },
+        { t: "L4", color: "#F0F", text:"EST6000_VVE_01" },
+        { t: "M4", color: "green", text:"EST6000_VVE_01" },
+        { t: "H5", color: "red-black", text:"EST6000_DIR_01" },
+        { t: "L5", color: "#F0F", text:"EST6000_DIR_01" },
+        { t: "M5", color: "green", text:"EST6000_DIR_01" },
+        { t: "RS232", color: "red", text:"EST6000_PLH_01" },
+        { t: "RS232", color: "red", text:"EST6000_PLV_01" },
+      ];
+
+      const svg = await createWiringDiagram("./template/CR1000s.svg", terminals, wirings);
+      svg.setAttribute("width", "600");
+      svg.setAttribute("height", "300");
+      //svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      //svg.setAttribute("viewBox", `0 -10 600 400`);
+      document.querySelector("#wrap").append(svg);
+    </script>
+
+  </body>
+</html>

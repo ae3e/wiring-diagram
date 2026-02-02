@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { createPattern } from "./pattern";
-import { extractXMinMaxByText, layoutInLanes } from "./util";
+import { createPattern } from "./pattern.js";
+import { extractXMinMaxByText, layoutInLanes } from "./util.js";
 
 /**
  * Create an SVG circle using D3.
@@ -42,7 +42,7 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
   // On utilise donc les valeurs du viewBox du svg importé
   // Par défaut le svg a la dimension 300x150px si on ne précise rien
   //Il faut donc lire le svg importé et récupéré le viewbox - A faire! ici pseudocode
-  svgfile = "./template/test.svg";
+  //svgfile = "./template/CR1000s.svg";
   
   let svgDoc = await d3.xml(svgfile);
   const svgNode = svgDoc.documentElement;
@@ -69,7 +69,7 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
   let ranges = extractXMinMaxByText(wirings,terminals);
   console.log(ranges)
   let defaultWidth = 150;
-  let boxes = layoutInLanes(Object.entries(ranges).map(([text, { xmin, xmax, y, delta }]) => ({ x: (xmin + xmax) / 2, width: xmax-xmin>defaultWidth?xmax-xmin+20:defaultWidth, height: 20, text, delta })), { padY: 5, top: 0, leftMargin: 0 });
+  let boxes = layoutInLanes(Object.entries(ranges).map(([text, { xmin, xmax, y, delta }]) => ({ x: (xmin + xmax) / 2, width: xmax-xmin>defaultWidth?xmax-xmin+20:defaultWidth, height: 24, text, delta })), { padY: 20, top: 0, leftMargin: 0 });
   console.log(boxes)
 
 
@@ -89,7 +89,7 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
     .attr("d", (d) =>
       line([
         [terminals[d.t].x, terminals[d.t].y],//terminals[d.t].y + lineLen / 2 + 30],
-        [terminals[d.t].x, boxes.nodes.find(item => item.text === d.text).delta+boxes.laneTops[boxes.nodes.find(item => item.text === d.text).lane]],
+        [terminals[d.t].x, boxes.nodes.find(item => item.text === d.text).delta+boxes.laneTops[boxes.nodes.find(item => item.text === d.text).lane]+5],
         
       ])
     )
@@ -120,7 +120,7 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
       .attr("ry", 4)
       .attr("fill", "#eee")
       .attr("stroke-width",2)
-      .attr("stroke", "#901a1a");
+      .attr("stroke", "#000000");
 
         // texte (centré)
     const label = gr.append("text")
@@ -131,6 +131,7 @@ export async function createWiringDiagram(svgfile,terminals,wirings,config){
       .attr("fill", "#000")*/
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
+      .attr("dy", "1px")
       .text(box.text);
 });
 
