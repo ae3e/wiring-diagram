@@ -28,7 +28,7 @@
 <body>
   <div id="wrap">
     <header>
-      <div><b>Datalogger</b> CR1000 terminals: <code>H1, L1, M1, H2, L2, M2, ..., RS232</code> + weather sensors : <code>EST6000_TEM_01, EST6000_HUM_01, ...</code></div>
+      <div><b>Datalogger</b> CR1000 terminals: <code>H1, L1, M1, H2, L2, M2, ..., RS232</code> + weather sensors : <code>SITEA001_TMP_01, SITEA001_HMD_01, ...</code></div>
       <div class="hint">Drag background to pan. Mousewheel to zoom.</div>
     </header>
     <svg id="svg"></svg>
@@ -57,23 +57,23 @@
       };
 
       let wirings = [
-        { t: "H1", color: "blue", text:"EST6000_TEM_01" },        
-        { t: "L1", color: "yellow-black", text:"EST6000_TEM_01" },
-        { t: "G1", color: "red-black", text:"EST6000_TEM_01" },
-        { t: "H2", color: "red-black", text:"EST6000_PRA_01" },
-        { t: "L2", color: "#F0F", text:"EST6000_PRA_01" },
-        { t: "M2", color: "green", text:"EST6000_PRA_01" },
-        { t: "H3", color: "red-black", text:"EST6000_HUM_01" },
-        { t: "L3", color: "#F0F", text:"EST6000_HUM_01" },
-        { t: "M3", color: "green", text:"EST6000_HUM_01" },
-        { t: "H4", color: "red-black", text:"EST6000_VVE_01" },
-        { t: "L4", color: "#F0F", text:"EST6000_VVE_01" },
-        { t: "M4", color: "green", text:"EST6000_VVE_01" },
-        { t: "H5", color: "red-black", text:"EST6000_DIR_01" },
-        { t: "L5", color: "#F0F", text:"EST6000_DIR_01" },
-        { t: "M5", color: "green", text:"EST6000_DIR_01" },
-        { t: "RS232", color: "red", text:"EST6000_PLH_01" },
-        { t: "RS232", color: "red", text:"EST6000_PLV_01" },
+        { t: "H1", color: "blue", text:"SITEA001_TMP_01" },        
+        { t: "L1", color: "yellow-black", text:"SITEA001_TMP_01" },
+        { t: "G1", color: "red-black", text:"SITEA001_TMP_01" },
+        { t: "H2", color: "red-black", text:"SITEA001_BAR_01" },
+        { t: "L2", color: "#F0F", text:"SITEA001_BAR_01" },
+        { t: "M2", color: "green", text:"SITEA001_BAR_01" },
+        { t: "H3", color: "red-black", text:"SITEA001_HMD_01" },
+        { t: "L3", color: "#F0F", text:"SITEA001_HMD_01" },
+        { t: "M3", color: "green", text:"SITEA001_HMD_01" },
+        { t: "H4", color: "red-black", text:"SITEA001_WSP_01" },
+        { t: "L4", color: "#F0F", text:"SITEA001_WSP_01" },
+        { t: "M4", color: "green", text:"SITEA001_WSP_01" },
+        { t: "H5", color: "red-black", text:"SITEA001_WDR_01" },
+        { t: "L5", color: "#F0F", text:"SITEA001_WDR_01" },
+        { t: "M5", color: "green", text:"SITEA001_WDR_01" },
+        { t: "RS232", color: "red", text:"SITEA001_RGH_01" },
+        { t: "RS232", color: "red", text:"SITEA001_RGV_01" },
       ];
 
       const svg = await createWiringDiagram("./template/CR1000s.svg", terminals, wirings);
