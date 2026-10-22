@@ -1,6 +1,6 @@
 # Dagre
 
-Noeuds à position fixe, routage orthogonal simple, DagreJS chargé depuis un CDN.
+Fixed-position nodes, simple orthogonal routing, DagreJS loaded from a CDN.
 
 <script setup>
 import code from "./dagre.js?raw"

@@ -1,19 +1,19 @@
-# Prise en main
+# Getting started
 
-## Installation et build
+## Install and build
 
 ```bash
 npm install
 npm run build
 ```
 
-Le build (Rollup) écrit la bibliothèque dans `dist/` :
+The build (Rollup) writes the library to `dist/`:
 
-- `dist/wiringdiagram.esm.js` (module ES)
+- `dist/wiringdiagram.esm.js` (ES module)
 - `dist/wiringdiagram.cjs` (CommonJS)
 - `dist/wiringdiagram.umd.js` (UMD, global `WiringDiagram`)
 
-## Utilisation
+## Usage
 
 ```js
 import { createWiringDiagram } from "./dist/wiringdiagram.esm.js";
@@ -34,9 +34,9 @@ const svg = await createWiringDiagram("./template/CR1000s.svg", terminals, wirin
 document.querySelector("#stage").append(svg);
 ```
 
-## Documentation locale
+## Local documentation
 
 ```bash
-npm run build        # la bibliothèque doit être buildée avant les démos
+npm run build        # the library must be built before the demos
 npm run docs:dev
 ```

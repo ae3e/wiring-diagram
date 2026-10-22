@@ -1,8 +1,8 @@
-# Exemples
+# Examples
 
-- [CR1000](./cr1000) : centrale CR1000 avec capteurs météo (utilise la bibliothèque).
-- [Anti-overlap](./anti-overlap) : placement de boîtes en lanes sans chevauchement.
-- [Dagre](./dagre) : expérimentation de mise en page avec DagreJS.
-- [ELK](./elk) : expérimentation de mise en page avec ELKjs.
+- [CR1000](./cr1000): CR1000 datalogger with weather sensors (uses the library).
+- [Anti-overlap](./anti-overlap): box placement on lanes without overlap.
+- [Dagre](./dagre): layout experiment with DagreJS.
+- [ELK](./elk): layout experiment with ELKjs.
 
-Les dépendances Dagre et ELK sont chargées depuis un CDN.
+The Dagre and ELK dependencies are loaded from a CDN.

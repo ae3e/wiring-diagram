@@ -1,6 +1,6 @@
 # Anti-overlap
 
-Placement glouton de boîtes par lanes, sans chevauchement horizontal.
+Greedy box placement on lanes, with no horizontal overlap.
 
 <script setup>
 import code from "./anti-overlap.js?raw"

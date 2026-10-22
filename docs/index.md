@@ -1,12 +1,12 @@
 # Introduction
 
-WiringDiagram est une petite bibliothèque JavaScript (modules ES6, [D3.js](https://d3js.org/) v7) qui dessine des schémas de câblage en SVG : des capteurs reliés aux bornes d'un équipement, par exemple une centrale d'acquisition Campbell CR1000.
+WiringDiagram is a small JavaScript library (ES modules, [D3.js](https://d3js.org/) v7) that draws wiring diagrams as SVG: sensors connected to the terminals of a device, for example a Campbell CR1000 datalogger.
 
-## Objectifs
+## Goals
 
-- Afficher quel capteur est câblé sur quelle borne.
-- Dessiner chaque fil avec sa couleur, y compris les fils bicolores (`red-black`).
-- Regrouper les fils d'un capteur dans une boîte nommée, placée sur des « lanes » sans chevauchement.
-- Produire un SVG déplaçable et zoomable, intégrable dans n'importe quelle page.
+- Show which sensor is wired to which terminal.
+- Draw each wire with its color, including two-color wires (`red-black`).
+- Group a sensor's wires in a named box, placed on non-overlapping lanes.
+- Produce a pannable and zoomable SVG that can be embedded in any page.
 
-Voir la [prise en main](./getting-started) puis les [exemples](./examples/).
+See [Getting started](./getting-started), then the [examples](./examples/).

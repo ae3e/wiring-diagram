@@ -2,22 +2,22 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'WiringDiagram',
-  description: 'Bibliothèque JS (D3) pour dessiner des schémas de câblage en SVG',
-  lang: 'fr-FR',
+  description: 'JS library (D3) to draw wiring diagrams as SVG',
+  lang: 'en-US',
   base: '/wiring-diagram/',
   themeConfig: {
     nav: [
       { text: 'Introduction', link: '/' },
-      { text: 'Prise en main', link: '/getting-started' },
+      { text: 'Getting started', link: '/getting-started' },
       { text: 'API', link: '/api' },
-      { text: 'Exemples', link: '/examples/' }
+      { text: 'Examples', link: '/examples/' }
     ],
     sidebar: [
       { text: 'Introduction', link: '/' },
-      { text: 'Prise en main', link: '/getting-started' },
+      { text: 'Getting started', link: '/getting-started' },
       { text: 'API', link: '/api' },
       {
-        text: 'Exemples',
+        text: 'Examples',
         link: '/examples/',
         items: [
           { text: 'CR1000', link: '/examples/cr1000' },

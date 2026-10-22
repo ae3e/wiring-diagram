@@ -2,8 +2,8 @@
 import { onMounted, ref } from 'vue'
 import cr1000Url from '../../../template/CR1000s.svg?url'
 
-// `code` : source de l'exemple (import ?raw). Il est exécuté côté client avec
-// les variables : container, d3, WiringDiagram, loadScript, assets.
+// `code`: example source (imported with ?raw). It runs client-side with
+// the variables: container, d3, WiringDiagram, loadScript, assets.
 const props = defineProps<{ code: string }>()
 
 const container = ref<HTMLElement | null>(null)
@@ -15,7 +15,7 @@ function loadScript(src: string): Promise<void> {
     const s = document.createElement('script')
     s.src = src
     s.onload = () => resolve()
-    s.onerror = () => reject(new Error(`Échec du chargement de ${src}`))
+    s.onerror = () => reject(new Error(`Failed to load ${src}`))
     document.head.appendChild(s)
   })
 }
@@ -23,7 +23,7 @@ function loadScript(src: string): Promise<void> {
 onMounted(async () => {
   try {
     const d3 = await import('d3')
-    // La bibliothèque buildée (npm run build) est requise.
+    // The built library (npm run build) is required.
     const WiringDiagram = await import('../../../dist/wiringdiagram.esm.js')
     const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
     const run = new AsyncFunction('container', 'd3', 'WiringDiagram', 'loadScript', 'assets', props.code)
@@ -42,7 +42,7 @@ onMounted(async () => {
       <p v-if="error" class="demo-error">{{ error }}</p>
     </div>
     <details class="demo-code" open>
-      <summary>Code source</summary>
+      <summary>Source code</summary>
       <pre><code>{{ code }}</code></pre>
     </details>
   </div>

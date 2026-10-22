@@ -1,6 +1,6 @@
 # ELK
 
-Noeuds à position fixe, routage orthogonal par ELKjs chargé depuis un CDN.
+Fixed-position nodes, orthogonal routing with ELKjs loaded from a CDN.
 
 <script setup>
 import code from "./elk.js?raw"

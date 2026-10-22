@@ -1,5 +1,5 @@
 /**********************
- * 1) Entrée (exemple)
+ * 1) Input (example)
  **********************/
 // Tableau attendu: [{x, width, height}, ...]
 // x = milieu (en pixels dans cet exemple)
@@ -18,28 +18,28 @@ function makeRandomData(n = 28, svgW = 1100) {
 }
 
 /****************************************************
- * 2) Algorithme de placement sans superposition (X)
+ * 2) Placement algorithm with no overlap (X)
  ****************************************************/
-// Détecte chevauchement en X entre deux intervalles [l1, r1] et [l2, r2]
+// Detects an X overlap between two intervals [l1, r1] et [l2, r2]
 function overlaps1D(l1, r1, l2, r2, padX = 0) {
-  // padX ajoute un peu d'espace entre les boxes
+  // padX adds some space between boxes
   return (l1 < (r2 + padX)) && (l2 < (r1 + padX));
 }
 
 /**
- * Place les boxes en "lanes" (lignes) pour éviter les chevauchements horizontaux.
- * Entrée: items [{x, width, height}]
+ * Places boxes on "lanes" (rows) to avoid horizontal overlaps.
+ * Input: items [{x, width, height}]
  * Sortie: items enrichis {left, right, lane, y, ...} + meta lanes
  */
 function layoutInLanes(items, cfg) {
   const {
-    padX = 8,      // espace min en X entre 2 boxes dans la même lane
+    padX = 8,      // min X gap between 2 boxes in the same lane
     padY = 10,     // espace vertical entre lanes
     top = 24,      // marge top
-    leftMargin = 24 // marge gauche (si vous ajoutez une échelle plus tard)
+    leftMargin = 24 // left margin (in case you add a scale later)
   } = cfg || {};
 
-  // Normalise: calcule left/right à partir de x milieu
+  // Normalize: compute left/right from the middle x
   const nodes = items.map(d => {
     const left = (d.x - d.width / 2);
     const right = (d.x + d.width / 2);
@@ -49,7 +49,7 @@ function layoutInLanes(items, cfg) {
   // Tri par bord gauche (greedy classique)
   nodes.sort((a, b) => (a.left - b.left) || (a.right - b.right));
 
-  // lanes = tableau de tableaux ; chaque lane stocke les nodes placés dedans
+  // lanes = array of arrays; each lane stores the nodes placed in it
   const lanes = [];
 
   // Affectation gloutonne lane par lane
@@ -59,8 +59,8 @@ function layoutInLanes(items, cfg) {
     for (let li = 0; li < lanes.length; li++) {
       const lane = lanes[li];
 
-      // Vérifie collision avec tout ce qui est déjà dans la lane
-      // (optimisable: ne vérifier que le dernier si lane triée, mais restons simples)
+      // Check for collisions with everything already in the lane
+      // (could be optimized: only check the last one if the lane is sorted, but keep it simple)
       let collide = false;
       for (const other of lane) {
         if (overlaps1D(node.left, node.right, other.left, other.right, padX)) {
@@ -83,10 +83,10 @@ function layoutInLanes(items, cfg) {
     }
   }
 
-  // Calcule la hauteur de chaque lane (max height des nodes de cette lane)
+  // Compute each lane height (max node height in that lane)
   const laneHeights = lanes.map(lane => d3.max(lane, d => d.height) || 0);
 
-  // Calcule la position y de chaque lane (empilement vertical)
+  // Compute each lane y position (vertical stacking)
   const laneTops = [];
   let acc = top;
   for (let i = 0; i < laneHeights.length; i++) {
@@ -94,9 +94,9 @@ function layoutInLanes(items, cfg) {
     acc += laneHeights[i] + padY;
   }
 
-  // Assigne y + x (convertit en coordonnées SVG)
+  // Assign y + x (convert to SVG coordinates)
   for (const node of nodes) {
-    node.xSvg = leftMargin + node.left;         // x du coin gauche dans le SVG
+    node.xSvg = leftMargin + node.left;         // x of the left corner in the SVG
     node.ySvg = laneTops[node.lane];            // y du coin haut
   }
 
@@ -113,7 +113,7 @@ function layoutInLanes(items, cfg) {
  * 3) Rendu D3 (SVG)
  **********************/
 const root = d3.select(container);
-const regen = root.append("button").text("Régénérer des données");
+const regen = root.append("button").text("Regenerate data");
 const svg = root.append("svg").attr("width", 1100).attr("height", 520)
   .attr("viewBox", "0 0 1100 520").style("width", "100%").style("height", "auto");
 const W = +svg.attr("width");
@@ -133,7 +133,7 @@ function render(data) {
 
   const layout = layoutInLanes(data, cfg);
 
-  // Optionnel: baseline (y de référence)
+  // Optional: baseline (reference y)
   g.append("line")
     .attr("class", "baseline")
     .attr("x1", 0)
@@ -179,14 +179,14 @@ function render(data) {
   nodeG.append("title")
     .text(d => `id=${d.id}\nx(center)=${d.x}\nwidth=${d.width}\nheight=${d.height}\nlane=${d.lane}`);
 
-  // Ajuste la hauteur du SVG si nécessaire (sans dépasser H si tu veux fixer)
+  // Adjust the SVG height if needed (without exceeding H if you want it fixed)
   const needed = layout.totalHeight + 20;
   if (needed > H) svg.attr("height", needed);
   else svg.attr("height", H);
 }
 
 /**********************
- * 4) Démo
+ * 4) Demo
  **********************/
 let data = makeRandomData(10, W);
 render(data);

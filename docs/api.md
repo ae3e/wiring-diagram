@@ -2,13 +2,13 @@
 
 ## `createWiringDiagram(svgfile, terminals, wirings, config)`
 
-Retourne une `Promise` d'un élément SVG.
+Returns a `Promise` of an SVG element.
 
-- `svgfile` : URL de l'image SVG de l'équipement. Son `viewBox` fixe la taille du schéma.
-- `terminals` : objet associant un nom de borne à `{ x, y, delta? }`. `delta` (optionnel) décale la boîte du capteur vers le bas par rapport à sa lane.
-- `wirings` : tableau de `{ t, color, text }` où `t` est le nom de la borne, `color` une couleur CSS ou deux couleurs séparées par `-` (fil rayé), et `text` le libellé du capteur. Les fils de même `text` partagent une boîte.
-- `config` : réservé, non utilisé actuellement.
+- `svgfile`: URL of the device's SVG image. Its `viewBox` sets the size of the diagram.
+- `terminals`: object mapping a terminal name to `{ x, y, delta? }`. The optional `delta` shifts the sensor box down relative to its lane.
+- `wirings`: array of `{ t, color, text }` where `t` is the terminal name, `color` is a CSS color or two colors separated by `-` (striped wire), and `text` is the sensor label. Wires sharing the same `text` share a box.
+- `config`: reserved, currently unused.
 
 ## `createCircle(diameter, color, target)`
 
-Petite fonction utilitaire qui ajoute un cercle SVG à `target` (sélecteur CSS ou élément, `"body"` par défaut) et retourne le nœud `circle`.
+Small utility that appends an SVG circle to `target` (CSS selector or element, `"body"` by default) and returns the `circle` node.

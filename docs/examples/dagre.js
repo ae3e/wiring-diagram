@@ -1,14 +1,14 @@
 await loadScript("https://unpkg.com/dagre@0.8.5/dist/dagre.min.js");
 
 // ----------------------------
-// 1) Données + positions FIXES
+// 1) Data + FIXED positions
 // ----------------------------
 const NODE_W = 110, NODE_H = 44;
 const SENSOR_W = 140, SENSOR_H = 44;
 
 const mainOrder = ["H1","L1","M1","H2","L2","RS232"];
 
-// "Fixe" = on impose x/y nous-mêmes
+// "Fixed" = we set x/y ourselves
 const mainY = 240;
 const mainX0 = 120;
 const mainGap = 140;
@@ -18,7 +18,7 @@ mainOrder.forEach((id, i) => {
   fixedPos.set(id, { x: mainX0 + i * mainGap, y: mainY, w: NODE_W, h: NODE_H, label: id, kind: "main" });
 });
 
-// Sensors au-dessus, ancrés par défaut sur L1 et RS232
+// Sensors above, anchored by default on L1 and RS232
 fixedPos.set("SENSOR1", { x: fixedPos.get("L1").x, y: 90, w: SENSOR_W, h: SENSOR_H, label: "SENSOR 1", kind: "sensor" });
 fixedPos.set("SENSOR2", { x: fixedPos.get("RS232").x, y: 90, w: SENSOR_W, h: SENSOR_H, label: "SENSOR 2", kind: "sensor" });
 
@@ -31,27 +31,27 @@ const edges = [
 
 // -----------------------------------
 // 2) (Optionnel) Utiliser Dagre pour
-//    garder un ordre / des tailles.
-//    Ici on "build" le graph Dagre,
-//    mais on n'utilise PAS les x/y
-//    calculés: on garde les positions fixes.
+//    keep an order / sizes.
+//    Here we "build" the Dagre graph,
+//    but we do NOT use the x/y
+//    it computes: we keep the fixed positions.
 // -----------------------------------
 const gDagre = new dagre.graphlib.Graph();
 gDagre.setGraph({ rankdir: "TB", nodesep: 40, ranksep: 70 });
 gDagre.setDefaultEdgeLabel(() => ({}));
 
-// Ajout nodes avec tailles
+// Add nodes with sizes
 for (const [id, n] of fixedPos.entries()) {
   gDagre.setNode(id, { width: n.w, height: n.h, label: n.label });
 }
 edges.forEach(e => gDagre.setEdge(e.source, e.target, { id: e.id }));
 
-// Dagre layout (utile si tu veux récupérer des infos de routing plus tard)
-// Ici, on l'appelle juste pour montrer "dagrejs utilisé", puis on garde nos positions fixes.
+// Dagre layout (useful if you want routing info later)
+// Here we only call it to show "dagrejs used", then keep our fixed positions.
 dagre.layout(gDagre);
 
 // ----------------------------
-// 3) Rendu SVG avec D3
+// 3) SVG rendering with D3
 // ----------------------------
 const svg = d3.select(container).append("svg").style("width", "100%").style("height", "400px");
 const root = svg.append("g");
@@ -69,7 +69,7 @@ svg.append("defs").append("marker")
   .append("path")
   .attr("d", "M0,-5L10,0L0,5");
 
-// Helpers: positions (Dagre utilise des centres, nous aussi)
+// Helpers: positions (Dagre uses centers, so do we)
 function nodeCenter(id) {
   const n = fixedPos.get(id);
   return { cx: n.x, cy: n.y, w: n.w, h: n.h };
@@ -81,15 +81,15 @@ function orthogonalPath(sourceId, targetId) {
   const s = nodeCenter(sourceId);
   const t = nodeCenter(targetId);
 
-  // Points de sortie/entrée (centre bas source, centre haut target)
+  // Exit/entry points (source bottom center, target top center)
   const x1 = s.cx;
   const y1 = s.cy + s.h / 2;
 
   const x4 = t.cx;
   const y4 = t.cy - t.h / 2;
 
-  // Une ligne "bus" horizontale entre les rangées
-  // (tu peux ajuster si tu veux un bus commun par sensor)
+  // A horizontal "bus" line between the rows
+  // (adjust if you want a shared bus per sensor)
   const busY = (y1 + y4) / 2;
 
   // Chemin en 3 segments (vertical -> horizontal -> vertical)
